@@ -69,6 +69,12 @@
     <Reference Include="System.Windows.Browser" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\Silverlight.SimpleLogger\BackgroundActionsProcessor.cs">
+      <Link>BackgroundActionsProcessor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Silverlight.SimpleLogger\LogEntry.cs">
+      <Link>LogEntry.cs</Link>
+    </Compile>
     <Compile Include="..\..\Silverlight.SimpleLogger\SilverlightLogger.cs">
       <Link>SilverlightLogger.cs</Link>
     </Compile>

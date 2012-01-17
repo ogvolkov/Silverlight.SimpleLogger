@@ -10,6 +10,11 @@ namespace Silverlight.SimpleLogger
     public class SilverlightLogger
     {
         /// <summary>
+        /// Background queue of logging operations
+        /// </summary>
+        private static readonly BackgroundActionsProcessor LogActions = new BackgroundActionsProcessor();
+
+        /// <summary>
         /// Logging level
         /// </summary>
         private static int _level;
@@ -41,14 +46,10 @@ namespace Silverlight.SimpleLogger
         }
 
         /// <summary>
-        /// Configures Silverlight logger.
-        /// Call this method when Silverlight application initializes.
+        /// Configures Silverlight logger
         /// </summary>
-        /// <remarks>
-        /// You can find the log file on a client PC in isolated storage which is usually somewhere inside c:\Users\username\AppData\LocalLow\Microsoft\Silverlight\ folder
-        /// </remarks>
-        /// <param name="level">Desired log level (see <see cref="SilverlightLogLevel"/>)</param>
-        /// <param name="fileName">File name for log.</param>
+        /// <param name="level">Desired log level</param>
+        /// <param name="fileName">File name for log</param>
         public static void Configure(int level, string fileName)
         {
             _level = level;
@@ -64,7 +65,8 @@ namespace Silverlight.SimpleLogger
         {
             if (SilverlightLogLevel.Info < _level) return;
 
-            WriteToLog(String.Format(message, parameters));
+            var logEntry = new LogEntry { Message = message, Parameters = parameters };
+            LogActions.Enqueue(() => WriteToLog(logEntry));            
         }
 
         /// <summary>
@@ -76,8 +78,8 @@ namespace Silverlight.SimpleLogger
         {
             if (SilverlightLogLevel.Error < _level) return;
 
-            var fullMessage = String.Format("{0} \n{1}", message, exception);
-            WriteToLog(fullMessage);
+            var logEntry = new LogEntry { Message = message, Exception = exception };
+            LogActions.Enqueue(() => WriteToLog(logEntry));                        
         }
 
         /// <summary>
@@ -89,10 +91,9 @@ namespace Silverlight.SimpleLogger
         {
             if (SilverlightLogLevel.Error < _level) return;
 
-            var fullMessage = String.Format(message, parameters);
-            WriteToLog(fullMessage);
+            var logEntry = new LogEntry { Message = message, Parameters = parameters };            
+            LogActions.Enqueue(() => WriteToLog(logEntry));          
         }
-
 
         /// <summary>
         /// Opens logs file
@@ -114,13 +115,13 @@ namespace Silverlight.SimpleLogger
         }
 
         /// <summary>
-        /// Writes message into log file
+        /// Writes log entry into file
         /// </summary>
-        /// <param name="message">Message to be written</param>
-        private static void WriteToLog(string message)
+        /// <param name="entry">Log entry to be written</param>
+        private static void WriteToLog(LogEntry entry)
         {
             try
-            {               
+            {
                 if (_streamWriter == null)
                 {
                     OpenLog(_logFileName);
@@ -128,7 +129,7 @@ namespace Silverlight.SimpleLogger
 
                 if (_streamWriter != null)
                 {
-                    _streamWriter.WriteLine(String.Format("{0:yyyy-dd-MM hh:mm:ss.fff} {1}", DateTime.Now, message));
+                    _streamWriter.WriteLine(entry.ToString());
                 }
             }
             catch

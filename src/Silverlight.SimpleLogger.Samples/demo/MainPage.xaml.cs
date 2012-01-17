@@ -20,9 +20,14 @@ namespace demo
 
         private void BadButton_Click(object sender, RoutedEventArgs e)
         {
-            // simulate error
+            // simulate error; see error handler in App.xaml.cs
             var x = 0;
             x = x / x;
+        }
+
+        private void ShowLogButton_Click(object sender, RoutedEventArgs e)
+        {
+            SilverlightLogger.ShowLog();
         }
     }
 }

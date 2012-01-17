@@ -1,6 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.IO.IsolatedStorage;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Media;
 
 namespace Silverlight.SimpleLogger
 {
@@ -35,6 +38,11 @@ namespace Silverlight.SimpleLogger
         private static StreamWriter _streamWriter;
 
         /// <summary>
+        /// True if log file is open
+        /// </summary>
+        private static bool _isLogFileOpen;
+
+        /// <summary>
         /// Closes log file...just in case
         /// </summary>
         ~SilverlightLogger()
@@ -54,7 +62,7 @@ namespace Silverlight.SimpleLogger
         {
             _level = level;
             _logFileName = fileName;
-        }
+        }        
 
         /// <summary>
         /// Writes informational message into log
@@ -96,18 +104,72 @@ namespace Silverlight.SimpleLogger
         }
 
         /// <summary>
+        /// Shows log file in a separate child window on top
+        /// </summary>
+        public static void ShowLog()
+        {
+            var popup = new Popup();
+            
+            var text = new TextBox();
+            try
+            {
+                text.Text = GetLogContents();
+            }
+            catch(Exception exception)
+            {
+                text.Text = string.Format("Cannot open log file, exception is\n {0}", exception.ToString());
+            }
+
+            text.IsReadOnly = true;
+
+            var closeButton = new Button();
+            closeButton.Content = "Close";
+            closeButton.Click += (s, e) => popup.IsOpen = false;
+
+            var scroll = new ScrollViewer();
+            scroll.Background = new SolidColorBrush(Colors.White);
+            scroll.Content = text;
+            scroll.Height = 400;
+           
+            var content = new StackPanel();            
+            content.Children.Add(scroll);
+            content.Children.Add(closeButton);
+
+            popup.Child = content;            
+            popup.IsOpen = true;
+
+            // scroll to the bottom
+            scroll.UpdateLayout();
+            scroll.ScrollToVerticalOffset(double.MaxValue);
+        }
+
+        /// <summary>
+        /// Retrieves full contents of a log file
+        /// </summary>
+        /// <returns>String with log file contents</returns>
+        public static string GetLogContents()
+        {          
+            var storageFile = IsolatedStorageFile.GetUserStoreForApplication();
+            using (var fileStream = storageFile.OpenFile(_logFileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
+            using(var reader = new StreamReader(fileStream))
+            {
+                return reader.ReadToEnd();
+            }
+        }
+
+        /// <summary>
         /// Opens logs file
-        /// </summary>        
-        /// <param name="fileName">Log file name</param>
-        private static void OpenLog(string fileName)
+        /// </summary>                
+        private static void OpenLog()
         {
             try
             {
-                var _storageFile = IsolatedStorageFile.GetUserStoreForApplication();
-                _storageFileStream = _storageFile.OpenFile(fileName, FileMode.OpenOrCreate, FileAccess.Write, FileShare.ReadWrite | FileShare.Delete);
+                var storageFile = IsolatedStorageFile.GetUserStoreForApplication();
+                _storageFileStream = storageFile.OpenFile(_logFileName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite | FileShare.Delete);
                 _storageFileStream.Seek(0, SeekOrigin.End);
                 _streamWriter = new StreamWriter(_storageFileStream);                
                 _streamWriter.AutoFlush = true;
+                _isLogFileOpen = true;
             }
             catch
             {
@@ -123,9 +185,9 @@ namespace Silverlight.SimpleLogger
         {
             try
             {
-                if (_streamWriter == null)
+                if (!_isLogFileOpen)
                 {
-                    OpenLog(_logFileName);
+                    OpenLog();
                 }
 
                 if (_streamWriter != null)

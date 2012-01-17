@@ -104,8 +104,9 @@ namespace Silverlight.SimpleLogger
             try
             {
                 var _storageFile = IsolatedStorageFile.GetUserStoreForApplication();
-                _storageFileStream = _storageFile.OpenFile(fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
-                _streamWriter = new StreamWriter(_storageFileStream);
+                _storageFileStream = _storageFile.OpenFile(fileName, FileMode.OpenOrCreate, FileAccess.Write, FileShare.ReadWrite | FileShare.Delete);
+                _storageFileStream.Seek(0, SeekOrigin.End);
+                _streamWriter = new StreamWriter(_storageFileStream);                
                 _streamWriter.AutoFlush = true;
             }
             catch

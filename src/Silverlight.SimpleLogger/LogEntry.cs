@@ -63,7 +63,7 @@ namespace Silverlight.SimpleLogger
                     fullMessage = Message;
                 }
 
-            return string.Format("{0:yyyy-MM-dd hh:mm:ss.fff} [{2:D3}] {1}", When, fullMessage, ThreadId);
+            return string.Format("{0:yyyy-MM-dd HH:mm:ss.fff} [{2:D3}] {1}", When, fullMessage, ThreadId);
         }
     }
 }

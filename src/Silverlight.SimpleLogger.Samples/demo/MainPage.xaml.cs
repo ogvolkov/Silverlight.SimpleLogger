@@ -29,5 +29,10 @@ namespace demo
         {
             SilverlightLogger.ShowLog();
         }
+
+        private void FillLogWithBigMessage_Click(object sender, RoutedEventArgs e)
+        {
+            SilverlightLogger.Info(string.Empty.PadRight(100000, (char)(65 + new Random().Next(26))));
+        }
     }
 }

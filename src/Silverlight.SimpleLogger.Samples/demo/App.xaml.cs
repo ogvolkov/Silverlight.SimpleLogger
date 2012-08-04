@@ -10,9 +10,9 @@ namespace demo
 
         public App()
         {
-            this.Startup += this.Application_Startup;
-            this.Exit += this.Application_Exit;
-            this.UnhandledException += this.Application_UnhandledException;
+            Startup += Application_Startup;
+            Exit += Application_Exit;
+            UnhandledException += Application_UnhandledException;
 
             InitializeComponent();
 
@@ -22,7 +22,7 @@ namespace demo
 
         private void Application_Startup(object sender, StartupEventArgs e)
         {
-            this.RootVisual = new MainPage();
+            RootVisual = new MainPage();
         }
 
         private void Application_Exit(object sender, EventArgs e)

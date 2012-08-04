@@ -10,5 +10,6 @@
         <Button x:Name="GoodButton" Click="GoodButton_Click" Content="Do something"/>
         <Button x:Name="BadButton" Click="BadButton_Click" Content="Do something that fails"/>
         <Button x:Name="ShowLogButton" Click="ShowLogButton_Click" Content="Show log"/>
+        <Button x:Name="FillLogWithBigMessage" Click="FillLogWithBigMessage_Click" Content="Fill log with big message"/>
     </StackPanel>
 </UserControl>
